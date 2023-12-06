@@ -1,13 +1,20 @@
 import platform
+import sys
 from ctypes.wintypes import tagPOINT
 
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication
 from pynput import keyboard
+from PySide6.QtCore import Qt
 
 import api
 import app
 import listener
 import recorder
 
+
+_app = QApplication(sys.argv)
+_app.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)
 
 def on_event(r):
     _system = platform.system().lower()
@@ -49,6 +56,18 @@ def on_event(r):
         msg = f"handle: {handle}, process_id: {process_id}, process_name: {process_name}, automation_id: {automation_id}, class_name: {class_name}, control_id: {control_id}, control_type: {control_type}, rectangle: {rectangle}"
         print(msg)
 
+        app.client_info = {
+            "automation_id": automation_id,
+            "class_name": class_name,
+            "control_id": control_id,
+            "control_type": control_type,
+            "rectangle": rectangle,
+            "handle": handle,
+            "process_id": process_id,
+            "process_name": process_name,
+        }
+        app.recording = False
+
         skips = ["chrome", "msedge"]
         for s in skips:
             if process_name.find(s) >= 0:
@@ -61,9 +80,9 @@ def on_event(r):
 
 
 if __name__ == '__main__':
-    api.run()
     r = recorder.Recorder()
     r.show()
     on_event(r)
+    api.run(r)
     listener.run()
     app.run()

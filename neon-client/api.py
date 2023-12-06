@@ -3,39 +3,47 @@ from http import HTTPStatus
 
 from flask import Flask, request
 
-app = Flask(__name__)
+
+api_app = Flask(__name__)
+global _r
 
 
-@app.get("/")
+@api_app.get("/")
 def index():
     return ""
 
 
-@app.get("/ping")
+@api_app.get("/ping")
 def ping():
     return "ok"
 
 
-@app.post("/messages")
+@api_app.post("/messages")
 def messages():
     body = request.json
     message = body["message"]
     position = body["position"]
     size = body["size"]
+    selector = body["selector"]
+    xpath = body["xpath"]
     print('message', message[:message.index(">") + 1])
     print('position', position)
     print('size', size)
+    print('selector', selector)
+    print('xpath', xpath)
     print()
-    # window.setData(
-    #     int(body["position"]["x"]),
-    #     int(body["position"]["y"]),
-    #     int(body["size"]["width"]),
-    #     int(body["size"]["height"]),
-    #     message[:message.index(">") + 1])
+    _r.draw(
+        (int(body["position"]["x"]),
+         int(body["position"]["y"]),
+         int(body["size"]["width"]),
+         int(body["size"]["height"])),
+        message[:message.index(">") + 1])
+    app.browser_info = body
+    app.recording = False
     return {}, HTTPStatus.OK
 
 
-@app.after_request
+@api_app.after_request
 def after_request(res):
     # CORS
     h = res.headers
@@ -45,9 +53,11 @@ def after_request(res):
     return res
 
 
-def run():
+def run(r):
+    global _r
+    _r = r
     threading.Thread(
-        target=app.run,
+        target=api_app.run,
         kwargs=dict(host="0.0.0.0", port=18000),
         daemon=True,
     ).start()

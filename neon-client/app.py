@@ -3,13 +3,48 @@ import sys
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QApplication, QFrame, QHBoxLayout, QListWidget, QVBoxLayout, QListWidgetItem, QGridLayout
-from qfluentwidgets import FluentIcon as FIF, VerticalSeparator, ListWidget, PushButton, PrimaryPushButton
+from PySide6.QtWidgets import QApplication, QFrame, QHBoxLayout, QListWidgetItem, QWidget, QVBoxLayout
+from qfluentwidgets import FluentIcon as FIF, PushButton, ListWidget, LineEdit
 from qfluentwidgets import (NavigationItemPosition, MessageBox, MSFluentWindow,
                             SubtitleLabel, setFont)
 
 app = QApplication(sys.argv)
 app.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)
+
+# pipeline
+# handler
+
+# workflow
+# node
+
+components = [
+    {
+        "name": "打开网页",
+        "group": "WEB",
+        "component": "",
+    },
+    {
+        "name": "查找网页元素",
+        "group": "WEB",
+        "component": "",
+    },
+    {
+        "name": "输入UIA控件",
+        "group": "UIA",
+        "component": "",
+    },
+    {
+        "name": "点击UIA控件",
+        "group": "UIA",
+        "component": "",
+    },
+]
+
+workflows = []
+
+recording = False
+browser_info = None
+client_info = None
 
 
 class MainWidget(QFrame):
@@ -20,32 +55,107 @@ class MainWidget(QFrame):
     def __init__(self, text: str, parent=None):
         super().__init__(parent=parent)
 
-
         # 设置窗口标题和大小
         self.setWindowTitle("PySide Splitter Example")
         self.setGeometry(100, 100, 600, 400)
         self.setObjectName(text.replace(' ', '-'))
 
-
         main_layout = QHBoxLayout(self)
+        self.componentsWidget = ListWidget()
+        self.componentsWidget.setMaximumWidth(200)
+        for component in components:
+            item = QListWidgetItem(component["name"])
+            item.setIcon(QIcon(':/qfluentwidgets/images/logo.png'))
+            item.setData(1, {"idx": len(workflows)})
+            self.componentsWidget.addItem(item)
+            workflows.append({})
 
-        # 创建左侧按钮列表布局
-        left_layout = QVBoxLayout()
-        left_button1 = PushButton('Button 1', self)
-        left_button2 = PushButton('Button 2', self)
-        left_button1.clicked.connect(self.on_left_button_clicked)
-        left_button2.clicked.connect(self.on_left_button_clicked)
-        left_layout.addWidget(left_button1)
-        left_layout.addWidget(left_button2)
+        self.componentsWidget.itemClicked.connect(self.on_left_button_clicked2)  # connect itemClicked to Clicked method
 
-        # 创建右侧按钮列表布局
-        self.right_layout = QVBoxLayout()
-
+        self.nodesWidget = QWidget()
+        self.nodesWidgetLayout = QVBoxLayout(self.nodesWidget)
+        self.nodesWidgetLayout.setAlignment(Qt.AlignTop)
         # 将左右两个布局添加到主布局
-        main_layout.addLayout(left_layout)
-        main_layout.addLayout(self.right_layout)
+        main_layout.addWidget(self.componentsWidget)
+        main_layout.addWidget(self.nodesWidget)
 
         self.setLayout(main_layout)
+
+    def on_left_button_clicked2(self, item: QListWidgetItem):
+        print(item.text())
+        print(item.data(1))
+        name = item.text()
+        data = item.data(1)
+        new_item = QListWidgetItem()
+        new_item.setIcon(QIcon(':/qfluentwidgets/images/logo.png'))
+        new_item.setData(1, {"key": "test"})
+
+        if item.text() == '打开网页':
+            view = QWidget()
+            view.setMaximumHeight(50)
+            hBoxLayout = QHBoxLayout(view)
+            titleLabel = SubtitleLabel(view)
+            titleLabel.setText("打开网页")
+            # titleLabel.resize(100, 50)
+            # titleLabel.setStyleSheet('color:black;')
+            lineEdit = LineEdit(view)
+            lineEdit.setText('')
+            lineEdit.setClearButtonEnabled(True)
+            hBoxLayout.addWidget(titleLabel)
+            hBoxLayout.addWidget(lineEdit)
+            self.nodesWidgetLayout.addWidget(view)
+
+            def _changed(v):
+                print("url", v)
+                workflows[data["idx"]] = {"type": name, "value": v}
+
+            lineEdit.textChanged.connect(_changed)
+        elif item.text() == '查找网页元素':
+            view = QWidget()
+            view.setMaximumHeight(50)
+            hBoxLayout = QHBoxLayout(view)
+            titleLabel = SubtitleLabel(view)
+            titleLabel.setText("查找网页元素")
+            # titleLabel.resize(100, 50)
+            # titleLabel.setStyleSheet('color:black;')
+            lineEdit = PushButton(view)
+            lineEdit.setText('点击这里选择网页元素')
+            hBoxLayout.addWidget(titleLabel)
+            hBoxLayout.addWidget(lineEdit)
+            self.nodesWidgetLayout.addWidget(view)
+
+            def _clicked(v):
+                recording = True
+                print("btn", v)
+                workflows[data["idx"]] = {"type": name, "value": v}
+
+            lineEdit.clicked.connect(_clicked)
+        elif item.text() == '输入UIA控件':
+            view = QWidget()
+            view.setMaximumHeight(50)
+            hBoxLayout = QHBoxLayout(view)
+            titleLabel = SubtitleLabel(view)
+            titleLabel.setText("输入UIA控件")
+            # titleLabel.resize(100, 50)
+            # titleLabel.setStyleSheet('color:black;')
+            lineEdit = PushButton(view)
+            lineEdit.setText('点击这里选择UIA控件')
+            hBoxLayout.addWidget(titleLabel)
+            hBoxLayout.addWidget(lineEdit)
+            self.nodesWidgetLayout.addWidget(view)
+        elif item.text() == '点击UIA控件':
+            view = QWidget()
+            view.setMaximumHeight(50)
+            hBoxLayout = QHBoxLayout(view)
+            titleLabel = SubtitleLabel(view)
+            titleLabel.setText("点击UIA控件")
+            # titleLabel.resize(100, 50)
+            # titleLabel.setStyleSheet('color:black;')
+            lineEdit = PushButton(view)
+            lineEdit.setText('点击这里选择UIA控件')
+            hBoxLayout.addWidget(titleLabel)
+            hBoxLayout.addWidget(lineEdit)
+            self.nodesWidgetLayout.addWidget(view)
 
     def on_left_button_clicked(self):
         # 获取点击的按钮文本
@@ -53,8 +163,14 @@ class MainWidget(QFrame):
         button_text = sender_button.text()
 
         # 在右侧布局中动态创建新按钮
-        new_button = PushButton(f'New Button for {button_text}', self)
+        new_button = PushButton(button_text, self)
         self.right_layout.addWidget(new_button)
+
+        def _btn():
+            if button_text == '打开网页':
+                pass
+
+        new_button.clicked.connect(_btn)
 
 
 class Widget(QFrame):

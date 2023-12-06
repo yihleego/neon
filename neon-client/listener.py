@@ -46,19 +46,19 @@ def _on_click(x, y, button, pressed):
         _trigger(EventType.CLICK, button, x, y)
         _mouse_states[button] = None
 
-        #print(_keyboard_states)
-        #print(_mouse_states)
+        # print(_keyboard_states)
+        # print(_mouse_states)
 
 
 def _on_move(x, y):
     _position = (x, y)
-    _trigger(EventType.MOUSEMOVE, None,x, y)
+    _trigger(EventType.MOUSEMOVE, None, x, y)
 
 
 def _trigger(event, *args):
     listeners = _listeners[event]
     for keys, func in listeners:
-        #print('keys', keys)
+        # print('keys', keys)
         ok = True
         for key in keys:
             if isinstance(key, keyboard.Key):
