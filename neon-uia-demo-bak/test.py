@@ -49,7 +49,7 @@ def detect():
 # wechat = app.window(class_name='Notepad')
 # wechat.set_focus()
 
-color = 0x00ff00
+color = 0x0000ff
 
 # create the pen(outline)
 pen_handle = win32functions.CreatePen(win32defines.PS_SOLID, 3, color)
@@ -74,18 +74,20 @@ win32functions.SelectObject(dc, pen_handle)
 win32functions.SelectObject(dc, font_handle)
 win32gui.SetTextColor(dc, color)
 win32gui.SetBkMode(dc, win32defines.TRANSPARENT)
+hwnd = win32gui.WindowFromPoint((0, 0))
 
 past_handle = None
 past_rect = None
 while True:
     dddd = detect()
 
-    if past_handle and past_rect:
-        win32gui.InvalidateRect(past_handle, past_rect, True)
-
     # draw the rectangle to the DC
     # rect = wechat.rectangle()
     rect = dddd["rectangle"]
+
+    if past_handle and past_rect and past_rect != rect:
+        win32gui.InvalidateRect(hwnd, past_rect, True)
+        win32gui.UpdateWindow(hwnd)
 
     win32functions.Rectangle(dc, rect.left, rect.top, rect.right, rect.bottom)
 

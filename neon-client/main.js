@@ -19,14 +19,14 @@ function createChildWindow() {
         // parent: win,
         transparent: true,
         frame: false,
-        width: 1920,
-        height: 1080,
+        width: 9999,
+        height: 9999,
         skipTaskbar: true,
         alwaysOnTop: true,
     })
     child.loadFile('child.html')
     child.setPosition(0, 0)
-    child.maximize();
+    //child.maximize();
     child.setIgnoreMouseEvents(true)
     child.show()
     child.on('close', e => {
@@ -47,6 +47,7 @@ app.whenReady().then(() => {
         }
     })
     win.webContents.openDevTools({mode: 'detach'})
+    child.webContents.openDevTools({mode: 'detach'})
 })
 
 app.on('window-all-closed', () => {
