@@ -10,7 +10,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.action.onClicked.addListener(async (tab) => {
   const tabId: number | undefined = tab.id;
-  if(!tabId) return;
+  if (!tabId) return;
   const prevState = tabStates[tabId] || 'OFF';
   const nextState = prevState === 'ON' ? 'OFF' : 'ON';
 
